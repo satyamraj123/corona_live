@@ -9,10 +9,12 @@ class TimeSeriesChart extends StatefulWidget {
 }
 
 class _TimeSeriesChartState extends State<TimeSeriesChart> {
+
   @override
   Widget build(BuildContext context) {
     return Consumer<TimeSeries>(
       builder: (ctx, data, _) =>
+      data.isLoading?Center(child: CircularProgressIndicator(),):
       Container(
         margin: EdgeInsets.all(10),
           color: Colors.black,
@@ -22,7 +24,7 @@ class _TimeSeriesChartState extends State<TimeSeriesChart> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(40),
             child: data.isLoading?Center(child: CircularProgressIndicator(),): SfCartesianChart(
-               borderColor: Colors.red,
+               borderColor: Color.fromRGBO(50, 50, 50, 1),
                /*  title: ChartTitle(
                     text: 'Cases Over Time:',
                     textStyle: ChartTextStyle(

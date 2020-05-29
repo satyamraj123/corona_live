@@ -1,6 +1,9 @@
+import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter/material.dart';
 
 class Data {
   final String place;
@@ -30,12 +33,63 @@ class TotalData with ChangeNotifier {
   List<Data> get items {
     return [..._items];
   }
-  var isLoading=false;
 
-  Future<void> getTotalData() async {
-    isLoading=true;
+  var isLoading = false;
+
+  Future<void> getTotalData(BuildContext context,bool isLoading2) async {
+    void _showErrorDialog(String message1,String message2) {
+      if(isLoading2){
+  Navigator.of(context).pop();
+      }
+    
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(message2),
+        content: Text(message1, style: TextStyle(color: Colors.black)),
+        actions: <Widget>[
+          FlatButton(
+            child: Text(
+              'Okay',
+              style: TextStyle(color: Colors.black),
+            ),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          )
+        ],
+      ),
+    );
+  }
+    var data;
+    isLoading = true;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try{
+ 
     final response = await http.get('https://api.covid19india.org/data.json');
-    final data = json.decode(response.body);
+     data = json.decode(response.body);
+    prefs.setString("lastLoadedData", json.encode(data));
+    prefs.setString("lastLoadedDate","${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}");
+    data=json.decode(prefs.getString("lastLoadedData"));
+    }on SocketException{
+if (prefs.containsKey("lastLoadedDate")){
+print(prefs.getString('lastLoadedDate'));
+data=json.decode(prefs.getString("lastLoadedData"));
+_showErrorDialog('Check Your Internet Connection\n' +
+              'showing results from - ' +
+              prefs.getString('lastLoadedDate'),'Loaded Old Data');
+}
+else{
+print('no internet');
+_showErrorDialog('Unable to Load Data, check your internet connection','An Error Occured!');
+//alertdialog
+}
+    }
+   if(data==null){
+     isLoading=true;
+     return;
+   }
+        
     final List<Data> loadedData = [];
 
     data['statewise'].forEach((element) {
@@ -54,7 +108,7 @@ class TotalData with ChangeNotifier {
     });
 
     _items = loadedData;
-    isLoading=false;
+    isLoading = false;
     notifyListeners();
   }
 }
@@ -68,9 +122,26 @@ class DistrictData with ChangeNotifier {
 
   Future<void> getDistrictData({String state, String search}) async {
     isLoading = true;
+    var data;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try{
     final response = await http
         .get('https://api.covid19india.org/v2/state_district_wise.json');
-    final data = json.decode(response.body);
+     data = json.decode(response.body);
+     prefs.setString("lastDistrictData", json.encode(data));
+    prefs.setString("lastLoadedDate","${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}");
+    data=json.decode(prefs.getString("lastDistrictData"));
+    }on SocketException{
+if (prefs.containsKey("lastLoadedDate")){
+print(prefs.getString('lastLoadedDate'));
+data=json.decode(prefs.getString("lastDistrictData"));
+}
+else{
+print('no internet');
+//alertdialog
+}
+    }
+
     final List<Data> loadedData = [];
 
     data.forEach((element) {
@@ -104,10 +175,27 @@ class DistrictChartData with ChangeNotifier {
   }
 
   Future<void> getDistrictChartData({String state}) async {
-    isLoading = true;
+        isLoading = true;
+    var data;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try{
     final response = await http
         .get('https://api.covid19india.org/v2/state_district_wise.json');
-    final data = json.decode(response.body);
+     data = json.decode(response.body);
+     prefs.setString("lastDistrictData", json.encode(data));
+    prefs.setString("lastLoadedDate","${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}");
+    data=json.decode(prefs.getString("lastDistrictData"));
+    }on SocketException{
+if (prefs.containsKey("lastLoadedDate")){
+print(prefs.getString('lastLoadedDate'));
+data=json.decode(prefs.getString("lastDistrictData"));
+}
+else{
+print('no internet');
+//alertdialog
+}
+    }
+
     final List<Data> loadedData = [];
 
     data.forEach((element) {
@@ -214,9 +302,26 @@ class TimeSeries with ChangeNotifier {
   }
 
   Future<void> getTimeData() async {
+     var data;
     isLoading = true;
-    final response = await http.get('https://api.covid19india.org/data.json');
-    final data = json.decode(response.body);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try{
+  final response = await http.get('https://api.covid19india.org/data.json');
+    data = json.decode(response.body);
+   prefs.setString("lastLoadedData", json.encode(data));
+    prefs.setString("lastLoadedDate","${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}");
+    data=json.decode(prefs.getString("lastLoadedData"));
+    }on SocketException{
+if (prefs.containsKey("lastLoadedDate")){
+print(prefs.getString('lastLoadedDate'));
+data=json.decode(prefs.getString("lastLoadedData"));
+}
+else{
+print('no internet');
+//alertdialog
+}
+    }
+  
     List<TimeData> loadedData = [];
 
     data['cases_time_series'].forEach((element) {
@@ -271,9 +376,26 @@ class CardData with ChangeNotifier {
   }
 
   Future<void> getData({String search}) async {
+    var data;
     isLoading = true;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try{
     final response = await http.get('https://api.covid19india.org/data.json');
-    final data = json.decode(response.body);
+    data = json.decode(response.body);
+    prefs.setString("lastLoadedData", json.encode(data));
+    prefs.setString("lastLoadedDate","${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}");
+    data=json.decode(prefs.getString("lastLoadedData"));
+    }on SocketException{
+if (prefs.containsKey("lastLoadedDate")){
+print(prefs.getString('lastLoadedDate'));
+data=json.decode(prefs.getString("lastLoadedData"));
+}
+else{
+print('no internet');
+//alertdialog
+}
+    }
+   
     final List<Data> loadedData = [];
 
     data['statewise'].forEach((element) {
@@ -324,9 +446,25 @@ class ChartData with ChangeNotifier {
   }
 
   Future<void> getChartData() async {
+    var data;
     isLoading = true;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try{
     final response = await http.get('https://api.covid19india.org/data.json');
-    final data = json.decode(response.body);
+    data = json.decode(response.body);
+    prefs.setString("lastLoadedData", json.encode(data));
+    prefs.setString("lastLoadedDate","${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}");
+    data=json.decode(prefs.getString("lastLoadedData"));
+    }on SocketException{
+if (prefs.containsKey("lastLoadedDate")){
+print(prefs.getString('lastLoadedDate'));
+data=json.decode(prefs.getString("lastLoadedData"));
+}
+else{
+print('no internet');
+//alertdialog
+}
+    }
     final List<Data> loadedData = [];
 
     data['statewise'].forEach((element) {

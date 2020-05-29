@@ -32,7 +32,7 @@ class _ChartState extends State<Chart> {
                     majorGridLines: MajorGridLines(color: Colors.white),
                   ),
                   plotAreaBorderColor: Colors.amber,
-                  borderColor: Colors.red,
+                  borderColor:  Color.fromRGBO(50, 50, 50, 1),
                   
                   plotAreaBackgroundColor: Colors.white,
                   backgroundColor: Color.fromRGBO(30, 30, 30, 1),

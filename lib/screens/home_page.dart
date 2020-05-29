@@ -1,10 +1,9 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
 
-
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import '../providers/data.dart';
 import 'package:provider/provider.dart';
 import 'statedata.dart';
@@ -16,41 +15,24 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  var isLoading2=true;
+  var isLoading1=false;
   var _isInit = true;
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('An Error Occurred!'),
-        content: Text(message, style: TextStyle(color: Colors.black)),
-        actions: <Widget>[
-          FlatButton(
-            child: Text(
-              'Okay',
-              style: TextStyle(color: Colors.black),
-            ),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-          )
-        ],
-      ),
-    );
-  }
-
+ 
   @override
   Future<void> didChangeDependencies() async {
+    isLoading1=true;
+ 
     if (_isInit) {
-SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);      
-      try {
-        await Provider.of<TotalData>(context, listen: false).getTotalData();
-        await Provider.of<TimeSeries>(context, listen: false)
-            .getTimeData();
-      } on SocketException catch (e) {
-        _showErrorDialog('Check Your Internet Connection');
-      }
-      Navigator.of(context).pop();
+      SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
+     
+        await Provider.of<TotalData>(context, listen: true).getTotalData(context,isLoading2);
+        await Provider.of<TimeSeries>(context, listen: false).getTimeData();
+      
+     
     }
+    isLoading1=false;
+    isLoading2=false;
     _isInit = false;
     super.didChangeDependencies();
   }
@@ -62,21 +44,18 @@ SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
         body: RefreshIndicator(
           color: Colors.amber,
           backgroundColor: Colors.grey,
-
-          onRefresh: ()async{      
-            Future.delayed(Duration(seconds: 4),(){
-   
-      });
-      try {
-        await Provider.of<TotalData>(context, listen: false).getTotalData();
-        await Provider.of<TimeSeries>(context, listen: false)
-            .getTimeData();
-      } on SocketException catch (e) {
-        _showErrorDialog('Check Your Internet Connection');
-      }
-  
+          onRefresh: () async {
+            isLoading1=true;
+            Future.delayed(Duration(seconds: 4), () {});
+            
+            
+              await Provider.of<TotalData>(context, listen: true)
+                  .getTotalData(context,false);
+              await Provider.of<TimeSeries>(context, listen: false)
+                  .getTimeData();
+            isLoading1=false;
           },
-                  child: SingleChildScrollView(
+          child: SingleChildScrollView(
             physics: AlwaysScrollableScrollPhysics(),
             child: Column(
               children: <Widget>[
@@ -93,148 +72,154 @@ SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
                 SizedBox(
                   height: 20,
                 ),
-                
                 Container(
                   height: 300,
                   width: MediaQuery.of(context).size.width,
                   child: Consumer<TotalData>(
-                    builder: (ctx, data, _) =>
-                    data.isLoading?Center(child:CircularProgressIndicator()):
-                     Column(
-                      
-                      children: <Widget>[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Container(
-                              padding: EdgeInsets.all(10),
-                              margin: EdgeInsets.all(10),
-                              height: 100,
-                              width: 180,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    builder: (ctx, data, _) => data.isLoading||isLoading1
+                        ? Center(child: CircularProgressIndicator())
+                        : Column(
+                            children: <Widget>[
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
-                                  Text(
-                                    data.items[0].confirmedcases.toString(),
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 25,
-                                        fontWeight: FontWeight.bold),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Text(
-                                  'Confirmed',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 20,
+                                  Container(
+                                    padding: EdgeInsets.all(10),
+                                    margin: EdgeInsets.all(10),
+                                    height: 100,
+                                    width: 180,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: <Widget>[
+                                        Text(
+                                          data.items[0].confirmedcases
+                                              .toString(),
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 25,
+                                              fontWeight: FontWeight.bold),
+                                          textAlign: TextAlign.center,
                                         ),
-                                    textAlign: TextAlign.center,
+                                        Text(
+                                          'Confirmed',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    ),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                        color: Color.fromRGBO(50, 50, 50, 1)),
                                   ),
+                                  Container(
+                                    padding: EdgeInsets.all(10),
+                                    margin: EdgeInsets.all(10),
+                                    height: 100,
+                                    width: 180,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: <Widget>[
+                                        Text(
+                                          data.items[0].deaths.toString(),
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 25,
+                                              fontWeight: FontWeight.bold),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        Text(
+                                          'Deaths',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    ),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                        color: Color.fromRGBO(50, 50, 50, 1)),
+                                  )
                                 ],
                               ),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Color.fromRGBO(50, 50, 50, 1)),
-                            ),
-                            Container(
-                              padding: EdgeInsets.all(10),
-                              margin: EdgeInsets.all(10),
-                              height: 100,
-                              width: 180,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
-                                  Text(
-                                    data.items[0].deaths.toString(),
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 25,
-                                        fontWeight: FontWeight.bold),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Text(
-                                    'Deaths',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 20,
+                                  Container(
+                                    padding: EdgeInsets.all(10),
+                                    margin: EdgeInsets.all(10),
+                                    height: 100,
+                                    width: 180,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: <Widget>[
+                                        Text(
+                                          data.items[0].recovered.toString(),
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 25,
+                                              fontWeight: FontWeight.bold),
+                                          textAlign: TextAlign.center,
                                         ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
-                              ),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Color.fromRGBO(50, 50, 50, 1)),
-                            )
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Container(
-                              padding: EdgeInsets.all(10),
-                              margin: EdgeInsets.all(10),
-                              height: 100,
-                              width: 180,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                children: <Widget>[
-                                  Text(
-                                    data.items[0].recovered.toString(),
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 25,
-                                        fontWeight: FontWeight.bold),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Text(
-                                    'Recovered',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 20,
+                                        Text(
+                                          'Recovered',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                          ),
+                                          textAlign: TextAlign.center,
                                         ),
-                                    textAlign: TextAlign.center,
+                                      ],
+                                    ),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                        color: Color.fromRGBO(50, 50, 50, 1)),
                                   ),
-                                ],
-                              ),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Color.fromRGBO(50, 50, 50, 1)),
-                            ),
-                            Container(
-                              padding: EdgeInsets.all(10),
-                              margin: EdgeInsets.all(10),
-                              height: 100,
-                              width: 180,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                children: <Widget>[
-                                  Text(
-                                    data.items[0].deltaconfirmed.toString(),
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 25,
-                                        fontWeight: FontWeight.bold),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Text(
-                                    'Increased Today',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 17,
+                                  Container(
+                                    padding: EdgeInsets.all(10),
+                                    margin: EdgeInsets.all(10),
+                                    height: 100,
+                                    width: 180,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: <Widget>[
+                                        Text(
+                                          data.items[0].deltaconfirmed
+                                              .toString(),
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 25,
+                                              fontWeight: FontWeight.bold),
+                                          textAlign: TextAlign.center,
                                         ),
-                                    textAlign: TextAlign.center,
-                                  ),
+                                        Text(
+                                          'Increased Today',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 17,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    ),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                        color: Color.fromRGBO(50, 50, 50, 1)),
+                                  )
                                 ],
-                              ),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Color.fromRGBO(50, 50, 50, 1)),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
+                              )
+                            ],
+                          ),
                   ),
                 ),
                 Container(
@@ -247,9 +232,13 @@ SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
                           fontWeight: FontWeight.bold),
                       textAlign: TextAlign.start,
                     )),
-                    SizedBox(height: 10,),
+                SizedBox(
+                  height: 10,
+                ),
                 TimeSeriesChart(),
-                SizedBox(height: 20,),
+                SizedBox(
+                  height: 20,
+                ),
                 ListTile(
                   subtitle: Text(
                     'Updated recently',
@@ -272,8 +261,8 @@ SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
                       textAlign: TextAlign.center,
                     ),
                     onPressed: () {
-                      Navigator.of(context)
-                          .push(MaterialPageRoute(builder: (ctx) => StateData()));
+                      Navigator.of(context).push(
+                          MaterialPageRoute(builder: (ctx) => StateData()));
                     },
                   ),
                 ),
