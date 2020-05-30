@@ -318,7 +318,7 @@ class _HomePageState extends State<HomePage> {
                   Text(
                     'Follow me on github @satyamraj123',
                     style: TextStyle(
-                        fontSize: 20, color: Color.fromRGBO(25, 25, 25, 1)),
+                        fontSize: 15, color: Color.fromRGBO(70, 70, 70, 1)),
                   )
                 ],
               ),
