@@ -12,7 +12,7 @@ DistrictsData(this.state);
 }
 
 class _DistrictsDataState extends State<DistrictsData> {
-  
+  var _isSearch=false;
   var search='';
  /*   var _isInit = true;
  @override
@@ -33,14 +33,14 @@ class _DistrictsDataState extends State<DistrictsData> {
       body: Column(
         children: <Widget>[
           SizedBox(height: 40,),
-          Text(
+        _isSearch?Container()  :Text(
           'Top 5 Affected Districts',
           style: TextStyle(
               fontSize: 30, color: Colors.white, fontWeight: FontWeight.bold),
           softWrap: true,
           textAlign: TextAlign.center,
         ),
-             Consumer<DistrictChartData>(builder:(ctx,data,_)=> data.isLoading?Center(child: CircularProgressIndicator(),):
+             _isSearch?Container()  :Consumer<DistrictChartData>(builder:(ctx,data,_)=> data.isLoading?Center(child: CircularProgressIndicator(),):
              Chart(data.chartItems)),
 SizedBox(height:20),
            Text(
@@ -58,12 +58,22 @@ SizedBox(height:20),
               FocusScope.of(context).unfocus();
             },),
                       title: TextField(
+                        onTap: (){
+                          setState(() {
+                            _isSearch=true;
+                          });
+                        },
+                        onSubmitted: (value){
+                          setState(() {
+                            _isSearch=false;
+                          });
+                        },
               cursorColor: Colors.white,
               textAlign: TextAlign.left,
               style: TextStyle(color: Colors.white,fontFamily: 'CM'),
                decoration: InputDecoration(
                       fillColor: Colors.white,
-                      hintText: 'Search',
+                      hintText: 'Search District',
                       
                       hintStyle: TextStyle(color: Colors.grey,),
                       contentPadding:
@@ -86,6 +96,7 @@ SizedBox(height:20),
               onChanged: (value) {
                 setState(() {
                   search = value;   
+                  _isSearch=true;
                   Provider.of<DistrictData>(context).getDistrictData(search: search,state: widget.state);
                   
                 });
@@ -94,19 +105,21 @@ SizedBox(height:20),
             ),
           ), 
           SizedBox(height: 5),
-      
+          //Text('Scroll Down',textAlign: TextAlign.center,style: TextStyle(fontSize: 20,color: Color.fromRGBO(30, 30, 30, 1)),),
           Consumer<DistrictData>(
                   builder:(ctx,data,_)=>
                   data.isLoading?Center(child: CircularProgressIndicator(),):
                    Expanded(
-              child: ListView.builder(
-                  addAutomaticKeepAlives: true,
-                  scrollDirection: Axis.vertical,
-                  itemCount: data.items.length,
-                  itemBuilder: (ctx, i) {
+              child: Scrollbar(
+                              child: ListView.builder(
+                    addAutomaticKeepAlives: true,
+                    scrollDirection: Axis.vertical,
+                    itemCount: data.items.length,
+                    itemBuilder: (ctx, i) {
 
-                    return CardItem(data.items[i]);
-                  }),
+                      return CardItem(data.items[i]);
+                    }),
+              ),
             ),
           ),
         ],

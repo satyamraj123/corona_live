@@ -137,15 +137,20 @@ class CardItem extends StatelessWidget {
         if (data.activecases >= 1000 && data.activecases < 5000)
           CircleAvatar(
             backgroundColor: Colors.yellow,
+            radius: 30,
+            child: Text('Active Cases:\n'+data.activecases.toString(),style: TextStyle(color: Colors.black,fontSize: 8),textAlign: TextAlign.center,),
           ),
         if (data.activecases >= 5000)
           CircleAvatar(
             backgroundColor: Colors.red,
-            
+            radius: 30,
+            child: Text('Active Cases:\n'+data.activecases.toString(),style: TextStyle(color: Colors.black,fontSize: 8),textAlign: TextAlign.center,),
           ),
         if (data.activecases < 1000)
           CircleAvatar(
             backgroundColor: Colors.green,
+            radius: 30,
+            child: Text('Active Cases:\n'+data.activecases.toString(),style: TextStyle(color: Colors.black,fontSize: 8),textAlign: TextAlign.center,),
           ),
       ]),
     );

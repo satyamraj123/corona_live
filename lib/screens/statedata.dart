@@ -12,6 +12,7 @@ class StateData extends StatefulWidget {
 
 class _StateDataState extends State<StateData> {
   var _isInit = true;
+  var _isSearch=false;
   @override
   Future<void> didChangeDependencies() async{
     if (_isInit) {
@@ -43,16 +44,16 @@ class _StateDataState extends State<StateData> {
           SizedBox(
             height: 40,
           ),
-          Text(
+      !_isSearch?    Text(
             'Top 5 Affected States',
             style: TextStyle(
                 fontSize: 30, color: Colors.white, fontWeight: FontWeight.bold),
             softWrap: true,
             textAlign: TextAlign.center,
-          ),
-          Consumer<ChartData>(
+          ):Container(),
+       !_isSearch?    Consumer<ChartData>(
               builder: (ctx, data, _) =>data.isLoading?Center(child: CircularProgressIndicator(),):
-               Chart(data.chartItems)),
+               Chart(data.chartItems)):Container(),
    SizedBox(height:10),
           const Text(
             'State-wise Data',
@@ -68,15 +69,29 @@ class _StateDataState extends State<StateData> {
               ),
               onPressed: () {
                 FocusScope.of(context).unfocus();
+                setState(() {
+                  _isSearch=false;
+                });
               },
             ),
             title: TextField(
+              onTap: (){
+                setState(() {
+                 _isSearch=true; 
+                });
+              },
+              onSubmitted: (value){
+
+                setState(() {
+                 _isSearch=false; 
+                });
+              },
               cursorColor: Colors.white,
               textAlign: TextAlign.left,
               style: TextStyle(color: Colors.white, fontFamily: 'CM'),
               decoration: InputDecoration(
                 fillColor: Colors.white,
-                hintText: 'Search',
+                hintText: 'Search State',
                 hintStyle: TextStyle(
                   color: Colors.grey,
                 ),
@@ -97,7 +112,9 @@ class _StateDataState extends State<StateData> {
               onChanged: (value) {
                 setState(() {
                   search = value;
+                  _isSearch=true;
                   Provider.of<CardData>(context).getData(search: search);
+                  
                 });
               },
             ),
@@ -109,16 +126,19 @@ class _StateDataState extends State<StateData> {
                     child: CircularProgressIndicator(),
                   )
                 : Expanded(
-                    child: ListView.builder(
-                        addAutomaticKeepAlives: true,
-                        scrollDirection: Axis.vertical,
-                        itemCount: data.items.length,
-                        itemBuilder: (ctx, i) {
-                          return GestureDetector(
-                              onTap: () =>
-                                  gotoDistrictWise(data.items[i].place, ''),
-                              child: CardItem(data.items[i]));
-                        }),
+                    child: Scrollbar(
+                     
+                                          child: ListView.builder(
+                          addAutomaticKeepAlives: true,
+                          scrollDirection: Axis.vertical,
+                          itemCount: data.items.length,
+                          itemBuilder: (ctx, i) {
+                            return GestureDetector(
+                                onTap: () =>
+                                    gotoDistrictWise(data.items[i].place, ''),
+                                child: CardItem(data.items[i]));
+                          }),
+                    ),
                   ),
           )
         ],

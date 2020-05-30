@@ -37,11 +37,11 @@ class TotalData with ChangeNotifier {
   var isLoading = false;
 
   Future<void> getTotalData(BuildContext context,bool isLoading2) async {
+  
     void _showErrorDialog(String message1,String message2) {
-      if(isLoading2){
-  Navigator.of(context).pop();
-      }
-    
+         if(isLoading2){
+ Navigator.of(context).canPop()? Navigator.of(context).pop():null;
+      } 
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -65,12 +65,14 @@ class TotalData with ChangeNotifier {
     isLoading = true;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     try{
- 
+      isLoading2&&Navigator.of(context).canPop()?Navigator.of(context).pop():null;
     final response = await http.get('https://api.covid19india.org/data.json');
+    
      data = json.decode(response.body);
     prefs.setString("lastLoadedData", json.encode(data));
     prefs.setString("lastLoadedDate","${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}");
     data=json.decode(prefs.getString("lastLoadedData"));
+  
     }on SocketException{
 if (prefs.containsKey("lastLoadedDate")){
 print(prefs.getString('lastLoadedDate'));
@@ -78,6 +80,7 @@ data=json.decode(prefs.getString("lastLoadedData"));
 _showErrorDialog('Check Your Internet Connection\n' +
               'showing results from - ' +
               prefs.getString('lastLoadedDate'),'Loaded Old Data');
+              
 }
 else{
 print('no internet');
@@ -301,7 +304,7 @@ class TimeSeries with ChangeNotifier {
     return [..._recoveredcasesTimeItems];
   }
 
-  Future<void> getTimeData() async {
+  Future<void> getTimeData(BuildContext context, bool isLoading2) async {
      var data;
     isLoading = true;
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -311,6 +314,7 @@ class TimeSeries with ChangeNotifier {
    prefs.setString("lastLoadedData", json.encode(data));
     prefs.setString("lastLoadedDate","${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}");
     data=json.decode(prefs.getString("lastLoadedData"));
+    
     }on SocketException{
 if (prefs.containsKey("lastLoadedDate")){
 print(prefs.getString('lastLoadedDate'));
@@ -365,6 +369,7 @@ print('no internet');
 
     isLoading = false;
     notifyListeners();
+    
   }
 }
 
