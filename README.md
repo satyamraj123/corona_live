@@ -1,16 +1,16 @@
-# corona_live
+# COVID-19 Tracker
 
-A new Flutter project.
+Its a flutter app which shows you covid19 data like confirmed cases, recovered cases, deaths in an amazing and easy user friendly way.
+This app focuses on analytics and hence uses synfusion charts to show you time series trend of covid in India.
+It contains statewise and districtwise data.
+No network! Dont worry , It can show you old loaded Data.
 
-## Getting Started
+## See the sample images below-
 
-This project is a starting point for a Flutter application.
+![](images/screen.mp4)
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+
+
+
