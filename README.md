@@ -6,6 +6,8 @@ It contains statewise and districtwise data.
 No network! Dont worry , It can show you old loaded Data.
 
 ## See the sample images below-
+
+![](images/gif.gif)
 ![](images/3.jpg)
 ![](images/1.jpg)
 ![](images/2.jpg)
@@ -13,7 +15,7 @@ No network! Dont worry , It can show you old loaded Data.
 ![](images/5.jpg)
 ![](images/6.jpg)
 ![](images/7.jpg)
-![](images/screen.mp4)
+
 
 
 
