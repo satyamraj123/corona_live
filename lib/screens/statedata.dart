@@ -12,11 +12,11 @@ class StateData extends StatefulWidget {
 
 class _StateDataState extends State<StateData> {
   var _isInit = true;
-  var _isSearch=false;
+  var _isSearch = false;
   @override
-  Future<void> didChangeDependencies() async{
+  Future<void> didChangeDependencies() async {
     if (_isInit) {
-     await Provider.of<ChartData>(context, listen: false).getChartData();
+      await Provider.of<ChartData>(context, listen: false).getChartData();
       await Provider.of<CardData>(context, listen: false).getData(search: '');
     }
     _isInit = false;
@@ -27,10 +27,9 @@ class _StateDataState extends State<StateData> {
     Navigator.of(context)
         .push(MaterialPageRoute(builder: (ctx) => DistrictsData(state)));
     await Provider.of<DistrictData>(context)
-        .getDistrictData(state: state, search: '');
+        .getDistrictData(context: context,state: state, search: '');
     await Provider.of<DistrictChartData>(context)
         .getDistrictChartData(state: state);
-    
   }
 
   String search = '';
@@ -44,23 +43,32 @@ class _StateDataState extends State<StateData> {
           SizedBox(
             height: 40,
           ),
-      !_isSearch?    Text(
-            'Top 5 Affected States',
-            style: TextStyle(
-                fontSize: 30, color: Colors.white, fontWeight: FontWeight.bold),
-            softWrap: true,
-            textAlign: TextAlign.center,
-          ):Container(),
-       !_isSearch?    Consumer<ChartData>(
-              builder: (ctx, data, _) =>data.isLoading?Center(child: CircularProgressIndicator(),):
-               Chart(data.chartItems)):Container(),
-   SizedBox(height:10),
+          !_isSearch
+              ? Text(
+                  'Top 5 Affected States',
+                  style: TextStyle(
+                      fontSize: 30,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold),
+                  softWrap: true,
+                  textAlign: TextAlign.center,
+                )
+              : Container(),
+          !_isSearch
+              ? Consumer<ChartData>(
+                  builder: (ctx, data, _) => data.isLoading
+                      ? Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      : Chart(data.chartItems))
+              : Container(),
+          SizedBox(height: 10),
           const Text(
             'State-wise Data',
             style: TextStyle(
                 fontSize: 30, fontWeight: FontWeight.bold, color: Colors.white),
           ),
-          SizedBox(height:10),
+          SizedBox(height: 10),
           ListTile(
             trailing: IconButton(
               icon: Icon(
@@ -70,20 +78,19 @@ class _StateDataState extends State<StateData> {
               onPressed: () {
                 FocusScope.of(context).unfocus();
                 setState(() {
-                  _isSearch=false;
+                  _isSearch = false;
                 });
               },
             ),
             title: TextField(
-              onTap: (){
+              onTap: () {
                 setState(() {
-                 _isSearch=true; 
+                  _isSearch = true;
                 });
               },
-              onSubmitted: (value){
-
+              onSubmitted: (value) {
                 setState(() {
-                 _isSearch=false; 
+                  _isSearch = false;
                 });
               },
               cursorColor: Colors.white,
@@ -112,9 +119,8 @@ class _StateDataState extends State<StateData> {
               onChanged: (value) {
                 setState(() {
                   search = value;
-                  _isSearch=true;
+                  _isSearch = true;
                   Provider.of<CardData>(context).getData(search: search);
-                  
                 });
               },
             ),
@@ -127,8 +133,7 @@ class _StateDataState extends State<StateData> {
                   )
                 : Expanded(
                     child: Scrollbar(
-                     
-                                          child: ListView.builder(
+                      child: ListView.builder(
                           addAutomaticKeepAlives: true,
                           scrollDirection: Axis.vertical,
                           itemCount: data.items.length,
